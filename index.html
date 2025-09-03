@@ -1,0 +1,1130 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多行動態文字加背景</title>
+    <style>
+        :root {
+            /* 定義主題色變數 */
+            --primary-color: #1a73e8;
+            --secondary-color: #e8f0fe;
+            --text-color: #202124;
+            --background-color: #f8f9fa;
+            --container-bg: #ffffff;
+            --border-color: #dadce0;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            font-family: 'Noto Sans TC', 'Arial', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 40px auto;
+            background: var(--container-bg);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--shadow-light);
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        label {
+            font-size: 1.1rem;
+            color: #5f6368;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input[type="text"], input[type="file"], input[type="color"], input[type="number"] {
+            font-family: inherit;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="file"]:focus, input[type="color"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+        }
+        
+        input[type="text"] {
+            font-size: 1.2rem;
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .row label {
+            flex-shrink: 0;
+            margin-bottom: 0;
+        }
+        
+        #multi-color-pickers-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .big-btn {
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 14px 24px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary-color);
+            color: var(--container-bg);
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .big-btn:hover {
+            background: #1565c0;
+        }
+
+        .big-btn:active {
+            transform: scale(0.98);
+        }
+
+        .download-row {
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .color-picker::-webkit-color-swatch {
+            border: none;
+            border-radius: 10px;
+        }
+
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .font-size-slider {
+            -webkit-appearance: none;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+
+        .font-size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--container-bg);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .animation-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .anim-btn {
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-color);
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .anim-btn:hover {
+            background: #d2e3fc;
+        }
+
+        .anim-btn.selected {
+            background: var(--primary-color);
+            color: var(--container-bg);
+            border-color: var(--primary-color);
+        }
+
+        .preview-area {
+            min-height: 200px;
+            background: #f0f4f8;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            border: 2px dashed var(--border-color);
+            position: relative;
+        }
+
+        #download-gif.loading::after {
+            content: " 生成中...";
+        }
+        
+        .stroke-layer-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .stroke-layer-row input[type="number"] {
+            width: 60px;
+        }
+        
+        .remove-stroke-layer {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #d32f2f;
+            background: #ffebee;
+            color: #d32f2f;
+            cursor: pointer;
+        }
+
+        .remove-stroke-layer:hover {
+            background: #ef9a9a;
+            color: #ffffff;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>多行動態文字加背景</h1>
+        <label for="text-input">請輸入文字：</label>
+        <textarea id="text-input" placeholder="請輸入多行文字...&#10;可以換行&#10;支援動畫效果" rows="4" style="font-size:1.5rem; padding:12px; width:100%; border-radius:8px; border:1px solid #bbb; margin-bottom:24px; resize:vertical; font-family:Arial,sans-serif; line-height:1.4;" autocomplete="off"></textarea>
+
+        <div class="row">
+            <label for="letter-spacing">文字間距 (px):</label>
+            <input type="range" id="letter-spacing" min="0" max="20" value="0" step="0.5" class="font-size-slider">
+            <span id="letter-spacing-value">0px</span>
+        </div>
+
+        <div class="row">
+            <label for="line-height">行高:</label>
+            <input type="range" id="line-height" min="1" max="3" value="1.5" step="0.1" class="font-size-slider">
+            <span id="line-height-value">1.5</span>
+        </div>
+
+        <div class="row">
+            <label for="font-upload">上傳字型：</label>
+            <input type="file" id="font-upload" accept=".ttf,.otf">
+        </div>
+
+        <div class="row">
+            <label for="bg-upload">背景圖片：</label>
+            <input type="file" id="bg-upload" accept="image/*">
+            <button type="button" id="remove-bg" class="big-btn" style="font-size:1rem; padding:6px 16px;">移除背景</button>
+        </div>
+
+        <div class="row">
+            <label for="font-size">字體大小：</label>
+            <input type="range" id="font-size" min="24" max="120" value="48" class="font-size-slider">
+            <span id="font-size-value">48</span> px
+        </div>
+
+        <div class="row">
+            <label>色彩模式：</label>
+            <label><input type="radio" name="color-mode" value="single" checked> 單色</label>
+            <label><input type="radio" name="color-mode" value="multi"> 多色</label>
+        </div>
+        <div class="row" id="color-picker-row">
+            <label for="color-picker">文字顏色：</label>
+            <input type="color" id="color-picker" class="color-picker" value="#1a73e8">
+        </div>
+        <div class="row" id="multi-color-pickers-row" style="display:none; flex-direction:column; align-items:stretch; gap:8px;"></div>
+
+        <div class="row" id="stroke-layers-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+            <label>多層外框設定：</label>
+            <div id="stroke-layers-list"></div>
+            <button type="button" id="add-stroke-layer" class="big-btn" style="font-size:1rem; padding:6px 16px; margin-top:8px;">新增一層外框</button>
+        </div>
+
+        <div>
+            <label>動畫效果：</label>
+            <div class="animation-options">
+                <button class="anim-btn selected" data-anim="none">
+                    無
+                </button>
+                <button class="anim-btn" data-anim="scale">
+                    放大縮小
+                </button>
+                <button class="anim-btn" data-anim="blink">
+                    閃爍
+                </button>
+                <button class="anim-btn" data-anim="rotate">
+                    旋轉
+                </button>
+                <button class="anim-btn" data-anim="bounce">
+                    上下跳動
+                </button>
+                <button class="anim-btn" data-anim="shake">
+                    左右搖擺
+                </button>
+                <button class="anim-btn" data-anim="rainbow">
+                    彩虹閃爍
+                </button>
+                <button class="anim-btn" data-anim="wave">波浪</button>
+                <button class="anim-btn" data-anim="jump">彈跳</button>
+                <button class="anim-btn" data-anim="fade">漸淡入出</button>
+                <button class="anim-btn" data-anim="slide">左右滑動</button>
+                <button class="anim-btn" data-anim="scale-rotate">縮放+旋轉</button>
+                <button class="anim-btn" data-anim="breath">呼吸</button>
+                <button class="anim-btn" data-anim="shake-random">抖動</button>
+                <button class="anim-btn" data-anim="jump-wave">彈跳+波浪</button>
+                <button class="anim-btn" data-anim="typewriter">打字機</button>
+                
+                <button class="anim-btn" data-anim="scale-blink">縮放閃爍</button>
+                <button class="anim-btn" data-anim="flipY">上下翻轉</button>
+                <button class="anim-btn" data-anim="flipX">左右翻轉</button>
+                <button class="anim-btn" data-anim="spring">彈簧</button>
+                <button class="anim-btn" data-anim="ripple">波紋擴散</button>
+                <button class="anim-btn" data-anim="color-flow">顏色流動</button>
+                <button class="anim-btn" data-anim="lightning">閃電</button>
+                <button class="anim-btn" data-anim="blur-blink">模糊閃爍</button>
+                
+                
+                <button class="anim-btn" data-anim="split">文字分裂</button>
+                <button class="anim-btn" data-anim="implode">文字繞圈</button>
+               
+                <button class="anim-btn" data-anim="drop">文字掉落</button>
+                <button class="anim-btn" data-anim="stretch">文字拉伸</button>
+            </div>
+        </div>
+
+        <div class="preview-area" id="preview-area">
+            <canvas id="preview-canvas" width="500" height="400" style="background:transparent;"></canvas>
+            <div id="text-controls" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 8px; display: none;">
+                <div style="margin-bottom: 10px;">
+                    <label>位置 X: <input type="range" id="pos-x" min="0" max="500" value="250" style="width: 100px;"></label>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label>位置 Y: <input type="range" id="pos-y" min="0" max="400" value="200" style="width: 100px;"></label>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label>大小: <input type="range" id="scale" min="0.1" max="3" value="1" step="0.1" style="width: 100px;"></label>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label>旋轉: <input type="range" id="rotation" min="0" max="360" value="0" style="width: 100px;"></label>
+                </div>
+                <button type="button" id="reset-transform" class="big-btn" style="font-size:0.9rem; padding:4px 12px;">重置變換</button>
+            </div>
+        </div>
+
+        <div class="download-row">
+            <button class="big-btn" id="download-png">下載 PNG</button>
+            <button class="big-btn" id="download-gif">下載 GIF</button>
+        </div>
+        
+        <div id="local-file-warning" style="display: none; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 16px; margin-top: 24px; text-align: center;">
+            <p style="margin: 0 0 12px 0; color: #856404; font-weight: bold;">⚠️ 本地文件模式</p>
+            <p style="margin: 0; color: #856404; font-size: 0.9rem;">
+                檢測到您正在直接打開HTML文件。為了正常使用GIF下載功能，建議使用本地伺服器運行。<br>
+                在終端機中執行：<code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px;">python -m http.server 8000</code><br>
+                然後在瀏覽器中訪問：<code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px;">http://localhost:8000</code>
+            </p>
+        </div>
+    </div>
+    <!-- gifshot CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
+    <script>
+    // 預設字型名稱
+    let customFontName = null;
+    let customFontLoaded = false;
+    
+    // 背景圖片相關變數
+    let backgroundImage = null;
+    let backgroundImageLoaded = false;
+
+    const textInput = document.getElementById('text-input');
+    const fontUpload = document.getElementById('font-upload');
+    const bgUpload = document.getElementById('bg-upload');
+    const removeBgBtn = document.getElementById('remove-bg');
+    const fontSizeSlider = document.getElementById('font-size');
+    const fontSizeValue = document.getElementById('font-size-value');
+    const colorPicker = document.getElementById('color-picker');
+    const animBtns = document.querySelectorAll('.anim-btn');
+    const previewCanvas = document.getElementById('preview-canvas');
+    const img    = previewCanvas.toDataURL('image/png')
+    const ctx = previewCanvas.getContext('2d', { willReadFrequently: true });
+
+    let currentAnim = 'none';
+    let animFrame = null;
+    let animTick = 0;
+
+    const colorModeRadios = document.getElementsByName('color-mode');
+    const colorPickerRow = document.getElementById('color-picker-row');
+    const multiColorPickersRow = document.getElementById('multi-color-pickers-row');
+    let colorMode = 'single';
+    // 彩虹色預設
+    const rainbowColors = ['#FF5252','#FF9800','#FFEB3B','#4CAF50','#2196F3','#3F51B5','#9C27B0'];
+    let multiColors = ['#222222'];
+
+    // 多層外框設定
+    const strokeLayersList = document.getElementById('stroke-layers-list');
+    const addStrokeLayerBtn = document.getElementById('add-stroke-layer');
+    let strokeLayers = [
+        { color: '#000000', width: 2 }
+    ];
+    
+    // 文字變換控制相關變數
+    const textControls = document.getElementById('text-controls');
+    const posXSlider = document.getElementById('pos-x');
+    const posYSlider = document.getElementById('pos-y');
+    const scaleSlider = document.getElementById('scale');
+    const rotationSlider = document.getElementById('rotation');
+    const resetTransformBtn = document.getElementById('reset-transform');
+    
+    let textTransform = {
+        x: 250,
+        y: 200,
+        scale: 1,
+        rotation: 0
+    };
+
+    function getFontFamily() {
+        if (customFontLoaded && customFontName) {
+            return `'${customFontName}', Arial, sans-serif`;
+        }
+        return 'Arial, sans-serif';
+    }
+
+    function lerpColor(a, b, t) {
+        // a, b: #RRGGBB
+        let ar = parseInt(a.slice(1,3),16), ag = parseInt(a.slice(3,5),16), ab = parseInt(a.slice(5,7),16);
+        let br = parseInt(b.slice(1,3),16), bg = parseInt(b.slice(3,5),16), bb = parseInt(b.slice(5,7),16);
+        let rr = Math.round(ar + (br-ar)*t), rg = Math.round(ag + (bg-ag)*t), rb = Math.round(ab + (bb-ab)*t);
+        return `#${rr.toString(16).padStart(2,'0')}${rg.toString(16).padStart(2,'0')}${rb.toString(16).padStart(2,'0')}`;
+    }
+
+    function drawPreview(progress = null) {
+        const text = textInput.value || '預覽';
+        const size = parseInt(fontSizeSlider.value, 10);
+        const letterSpacing = parseFloat(document.getElementById('letter-spacing').value);
+        const lineHeight = parseFloat(document.getElementById('line-height').value);
+        
+        ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+        
+        // 繪製背景圖片
+        if (backgroundImageLoaded && backgroundImage) {
+            ctx.save();
+            ctx.globalAlpha = 0.8; // 背景透明度
+            ctx.drawImage(backgroundImage, 0, 0, previewCanvas.width, previewCanvas.height);
+            ctx.restore();
+        }
+        
+        ctx.save();
+        ctx.font = `${size}px ${getFontFamily()}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = '#0002';
+        ctx.shadowBlur = 2;
+        
+        // 應用文字變換
+        ctx.translate(textTransform.x, textTransform.y);
+        ctx.scale(textTransform.scale, textTransform.scale);
+        ctx.rotate(textTransform.rotation * Math.PI / 180);
+
+        // 動畫參數
+        let anim = currentAnim;
+        let tick = (progress !== null ? progress * 60 : animTick);
+        
+        // 處理多行文字
+        const lines = text.split('\n');
+        const totalHeight = lines.length * size * lineHeight;
+        let startY = -totalHeight / 2 + size / 2;
+        
+        lines.forEach((line, lineIndex) => {
+            if (!line.trim()) return; // 跳過空行
+            
+            ctx.save();
+            let y = startY + lineIndex * size * lineHeight;
+            
+            // 動畫效果
+            if(anim === 'scale') {
+                let scale = 1 + 0.1 * Math.sin(tick/10);
+                ctx.scale(scale, scale);
+            } else if(anim === 'rotate') {
+                ctx.rotate(tick/20);
+            } else if(anim === 'bounce') {
+                const by = Math.sin(tick/8)*24;
+                const impact = Math.max(0, -Math.sin(tick/8));
+                ctx.translate(0, by);
+                ctx.scale(1 + 0.12*impact, 1 - 0.12*impact);
+            } else if(anim === 'slide') {
+                ctx.translate(Math.sin(tick/10)*60, 0);
+            } else if(anim === 'scale-rotate') {
+                let scale = 1 + 0.08 * Math.sin(tick/10);
+                ctx.scale(scale, scale);
+                ctx.rotate(tick/15);
+            } else if(anim === 'breath') {
+                let scale = 1 + 0.12 * Math.sin(tick/16);
+                ctx.scale(scale, scale);
+                ctx.globalAlpha *= 0.7 + 0.3 * Math.abs(Math.sin(tick/16));
+            } else if(anim === 'shake-random') {
+                ctx.translate((Math.random()-0.5)*8, (Math.random()-0.5)*8);
+            } else if(anim === 'fade') {
+                ctx.globalAlpha = 0.5 + 0.5*Math.sin(tick/10);
+            } else if(anim === 'blink') {
+                ctx.globalAlpha = 0.5 + 0.5*Math.sin(tick/10);
+            } else if(anim === 'flipY') {
+                ctx.scale(1, Math.cos(Math.sin(tick/20)*Math.PI));
+            } else if(anim === 'flipX') {
+                ctx.scale(Math.cos(Math.sin(tick/20)*Math.PI), 1);
+            } else if(anim === 'spring') {
+                let scale = 1 + 0.3 * Math.abs(Math.sin(tick/8));
+                ctx.scale(scale, 1/scale);
+            } else if(anim === 'jump-wave') {
+                // 字元級運動，不移動整行
+            } else if(anim === 'shake') {
+                ctx.translate(Math.sin(tick/4)*15, 0);
+            } else if(anim === 'scale-blink') {
+                let scale = 1 + 0.2 * Math.sin(tick/10);
+                ctx.scale(scale, scale);
+                ctx.globalAlpha = 0.5 + 0.5 * Math.sin(tick/10);
+            } else if(anim === 'drop') {
+                ctx.translate(0, Math.abs(Math.sin(tick/10))*60);
+            } else if(anim === 'stretch') {
+                let stretch = 1 + 0.5 * Math.sin(tick/10);
+                ctx.scale(stretch, 1);
+            }
+            
+            // 多層外框
+            for(let l=strokeLayers.length-1; l>=0; l--) {
+                ctx.save();
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = strokeLayers[l].color;
+                ctx.lineWidth = strokeLayers[l].width;
+                
+                if(anim === 'ripple') {
+                    ctx.shadowBlur = 20 * Math.abs(Math.sin(tick/10));
+                    ctx.globalAlpha *= 1 - Math.abs(Math.sin(tick/10)) * 0.7;
+                    ctx.shadowColor = strokeLayers[l].color;
+                }
+                if(anim === 'lightning') {
+                    ctx.globalAlpha = 0.5 + 0.5 * Math.random();
+                }
+                if(anim === 'blur-blink') {
+                    ctx.filter = `blur(${2 + 2 * Math.abs(Math.sin(tick/10))}px)`;
+                    ctx.globalAlpha = 0.7 + 0.3 * Math.abs(Math.sin(tick/10));
+                }
+                
+                // 顏色流動（外框）
+                if(anim === 'color-flow') {
+                    const lineWidth = ctx.measureText(line).width;
+                    const xStart = -lineWidth/2;
+                    const shift = (tick*4) % (lineWidth + 1);
+                    const grad = ctx.createLinearGradient(xStart - shift, 0, xStart + lineWidth - shift, 0);
+                    grad.addColorStop(0, '#ff0048');
+                    grad.addColorStop(0.5, '#00c2ff');
+                    grad.addColorStop(1, '#7cff00');
+                    ctx.strokeStyle = grad;
+                }
+
+                // 打字機顯示到第幾字
+                let typeCount = null;
+                if (anim === 'typewriter') {
+                    const total = line.length;
+                    typeCount = Math.min(total, Math.max(0, Math.floor((tick/2) % (total + 1))));
+                }
+
+                // 分裂/聚合係數
+                const charsForCalc = line.split('');
+                const midIndex = (charsForCalc.length - 1) / 2;
+                let splitFactor = Math.sin(tick/10);
+                if (anim === 'implode') splitFactor = -splitFactor;
+                
+                // 繪製外框文字（支援多行和間距）
+                if(colorMode === 'multi') {
+                    let chars = line.split('');
+                    let x = -ctx.measureText(line).width/2;
+                    chars.forEach((ch, i) => {
+                        if (anim === 'typewriter' && i >= typeCount) return;
+                        let charY = y;
+                        let charDX = 0, charDY = 0;
+                        if(anim === 'wave') {
+                            charDX = Math.sin(tick/6 + i*0.8) * 12;
+                        } else if (anim === 'jump') {
+                            charDY = -Math.abs(Math.sin(tick/6 + i*0.9)) * 22;
+                        } else if (anim === 'jump-wave') {
+                            charDX = Math.cos(tick/6 + i*0.8) * 10;
+                            charDY = Math.sin(tick/6 + i*0.8) * 10;
+                        }
+                        if(anim === 'rainbow') {
+                            const hue = ((tick*10 + i*40) % 360);
+                            ctx.strokeStyle = `hsl(${hue}, 90%, 60%)`;
+                        }
+                        const charWidth = ctx.measureText(ch).width;
+                        const splitOffset = (anim === 'split') ? (i - midIndex) * 20 * Math.sin(tick/10) : 0;
+                        let dx = splitOffset, dy = 0;
+                        if (anim === 'implode') {
+                            const baseAngle = (i - midIndex) * 0.6;
+                            const angle = baseAngle + tick/6;
+                            const radius = 30 * (0.6 + 0.4 * Math.abs(Math.sin(tick/12)));
+                            dx = Math.cos(angle) * radius;
+                            dy = Math.sin(angle) * radius;
+                        }
+                        ctx.strokeText(ch, x + charWidth/2 + dx + charDX, charY + dy + charDY);
+                        x += charWidth + letterSpacing;
+                    });
+                } else {
+                    if(anim === 'rainbow') {
+                        ctx.strokeStyle = `hsl(${(tick*10)%360}, 90%, 60%)`;
+                    }
+                    // wave 不再整行上下移動，改為字元水平擺動
+                    // 繪製整行外框文字
+                    let x = -ctx.measureText(line).width/2;
+                    let chars = line.split('');
+                    chars.forEach((ch, i) => {
+                        if (anim === 'typewriter' && i >= typeCount) return;
+                        const charWidth = ctx.measureText(ch).width;
+                        const splitOffset = (anim === 'split') ? (i - midIndex) * 20 * Math.sin(tick/10) : 0;
+                        let dx = splitOffset, dy = 0;
+                        if (anim === 'implode') {
+                            const baseAngle = (i - midIndex) * 0.6;
+                            const angle = baseAngle + tick/6;
+                            const radius = 30 * (0.6 + 0.4 * Math.abs(Math.sin(tick/12)));
+                            dx = Math.cos(angle) * radius;
+                            dy = Math.sin(angle) * radius;
+                        }
+                        let charDX = 0, charDY = 0;
+                        if(anim === 'wave') {
+                            charDX = Math.sin(tick/6 + i*0.8) * 12;
+                        } else if (anim === 'jump') {
+                            charDY = -Math.abs(Math.sin(tick/6 + i*0.9)) * 22;
+                        } else if (anim === 'jump-wave') {
+                            charDX = Math.cos(tick/6 + i*0.8) * 10;
+                            charDY = Math.sin(tick/6 + i*0.8) * 10;
+                        }
+                        ctx.strokeText(ch, x + charWidth/2 + dx + charDX, y + dy + charDY);
+                        x += charWidth + letterSpacing;
+                    });
+                }
+                ctx.restore();
+            }
+            
+            // 文字填色
+            if(colorMode === 'multi') {
+                let chars = line.split('');
+                let x = -ctx.measureText(line).width/2;
+                // 顏色流動（填色）
+                let flowingGradient = null;
+                if (anim === 'color-flow') {
+                    const lineWidth = ctx.measureText(line).width;
+                    const xStart = -lineWidth/2;
+                    const shift = (tick*4) % (lineWidth + 1);
+                    flowingGradient = ctx.createLinearGradient(xStart - shift, 0, xStart + lineWidth - shift, 0);
+                    flowingGradient.addColorStop(0, '#ff0048');
+                    flowingGradient.addColorStop(0.5, '#00c2ff');
+                    flowingGradient.addColorStop(1, '#7cff00');
+                }
+                const midIndexFill = (chars.length - 1) / 2;
+                let typeCountFill = null;
+                if (anim === 'typewriter') {
+                    const total = line.length;
+                    typeCountFill = Math.min(total, Math.max(0, Math.floor((tick/2) % (total + 1))));
+                }
+                chars.forEach((ch, i) => {
+                    if (anim === 'typewriter' && i >= typeCountFill) return;
+                    let charY = y;
+                    let fillStyle = multiColors[i] || '#222';
+                    let charDX2 = 0, charDY2 = 0;
+                    if(anim === 'rainbow') {
+                        const hue = ((tick*10 + i*40) % 360);
+                        fillStyle = `hsl(${hue}, 90%, 60%)`;
+                    }
+                    if (anim === 'color-flow' && flowingGradient) {
+                        fillStyle = flowingGradient;
+                    }
+                    if(anim === 'wave') {
+                        charDX2 = Math.sin(tick/6 + i*0.8) * 12;
+                    } else if (anim === 'jump') {
+                        charDY2 = -Math.abs(Math.sin(tick/6 + i*0.9)) * 22;
+                    } else if (anim === 'jump-wave') {
+                        charDX2 = Math.cos(tick/6 + i*0.8) * 10;
+                        charDY2 = Math.sin(tick/6 + i*0.8) * 10;
+                    }
+                    ctx.fillStyle = fillStyle;
+                    const charWidth = ctx.measureText(ch).width;
+                    const splitOffset = (anim === 'split') ? (i - midIndexFill) * 20 * Math.sin(tick/10) : 0;
+                    let dx = splitOffset, dy = 0;
+                    if (anim === 'implode') {
+                        const baseAngle = (i - midIndexFill) * 0.6;
+                        const angle = baseAngle + tick/6;
+                        const radius = 30 * (0.6 + 0.4 * Math.abs(Math.sin(tick/12)));
+                        dx = Math.cos(angle) * radius;
+                        dy = Math.sin(angle) * radius;
+                    }
+                    ctx.fillText(ch, x + charWidth/2 + dx + charDX2, charY + dy + charDY2);
+                    x += charWidth + letterSpacing;
+                });
+            } else {
+                let fillStyle = colorPicker.value;
+                if(anim === 'rainbow') {
+                    fillStyle = `hsl(${(tick*10)%360}, 90%, 60%)`;
+                }
+                if(anim === 'color-flow') {
+                    const lineWidth = ctx.measureText(line).width;
+                    const xStart = -lineWidth/2;
+                    const shift = (tick*4) % (lineWidth + 1);
+                    const grad = ctx.createLinearGradient(xStart - shift, 0, xStart + lineWidth - shift, 0);
+                    grad.addColorStop(0, '#ff0048');
+                    grad.addColorStop(0.5, '#00c2ff');
+                    grad.addColorStop(1, '#7cff00');
+                    fillStyle = grad;
+                }
+                
+                ctx.fillStyle = fillStyle;
+                // 繪製整行填色文字
+                let x = -ctx.measureText(line).width/2;
+                let chars = line.split('');
+                // typewriter 顯示長度
+                let typeCount = null;
+                if (anim === 'typewriter') {
+                    const total = line.length;
+                    typeCount = Math.min(total, Math.max(0, Math.floor((tick/2) % (total + 1))));
+                }
+                const midIndex2 = (chars.length - 1) / 2;
+        chars.forEach((ch, i) => {
+                    if (anim === 'typewriter' && i >= typeCount) return;
+                    const charWidth = ctx.measureText(ch).width;
+                    const splitOffset = (anim === 'split') ? (i - midIndex2) * 20 * Math.sin(tick/10) : 0;
+                    let dx = splitOffset, dy = 0;
+                    if (anim === 'implode') {
+                        const baseAngle = (i - midIndex2) * 0.6;
+                        const angle = baseAngle + tick/6;
+                        const radius = 30 * (0.6 + 0.4 * Math.abs(Math.sin(tick/12)));
+                        dx = Math.cos(angle) * radius;
+                        dy = Math.sin(angle) * radius;
+                    }
+                    let charDX = 0, charDY = 0;
+                    if(anim === 'wave') {
+                        charDX = Math.sin(tick/6 + i*0.8) * 12;
+                    } else if (anim === 'jump') {
+                        charDY = -Math.abs(Math.sin(tick/6 + i*0.9)) * 22;
+                    } else if (anim === 'jump-wave') {
+                        charDX = Math.cos(tick/6 + i*0.8) * 10;
+                        charDY = Math.sin(tick/6 + i*0.8) * 10;
+                    }
+                    ctx.fillText(ch, x + charWidth/2 + dx + charDX, y + dy + charDY);
+                    x += charWidth + letterSpacing;
+                });
+                // typewriter 游標
+                if (anim === 'typewriter') {
+                    const shown = typeCount || 0;
+                    const shownText = line.slice(0, shown);
+                    const baseX = -ctx.measureText(line).width/2;
+                    const shownWidth = ctx.measureText(shownText).width + shown * letterSpacing;
+                    const cursorX = baseX + shownWidth;
+            ctx.save();
+                    ctx.globalAlpha = 0.2 + 0.8 * (Math.sin(tick/5) > 0 ? 1 : 0);
+                    ctx.fillRect(cursorX + 1, y - size*0.6, 2, size*1.2);
+            ctx.restore();
+        }
+            }
+            
+                ctx.restore();
+        });
+        
+        ctx.restore();
+    }
+
+    function animate() {
+        drawPreview();
+        animTick++;
+        if(currentAnim !== 'none') {
+            animFrame = requestAnimationFrame(animate);
+        }
+    }
+
+    function updatePreview() {
+        if(animFrame) cancelAnimationFrame(animFrame);
+        animTick = 0;
+        if(currentAnim !== 'none') {
+            animate();
+        } else {
+            drawPreview();
+        }
+    }
+
+    // 文字、大小、顏色事件
+    textInput.addEventListener('input', updatePreview);
+    fontSizeSlider.addEventListener('input', () => {
+        fontSizeValue.textContent = fontSizeSlider.value;
+        updatePreview();
+    });
+    colorPicker.addEventListener('input', updatePreview);
+
+    // 文字間距和行高控制事件
+    document.getElementById('letter-spacing').addEventListener('input', () => {
+        document.getElementById('letter-spacing-value').textContent = document.getElementById('letter-spacing').value + 'px';
+        updatePreview();
+    });
+    
+    document.getElementById('line-height').addEventListener('input', () => {
+        document.getElementById('line-height-value').textContent = document.getElementById('line-height').value;
+        updatePreview();
+    });
+
+    // 動畫選擇
+    animBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            animBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            currentAnim = btn.dataset.anim;
+            updatePreview();
+        });
+    });
+
+    // 色彩模式切換
+    colorModeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            colorMode = this.value;
+            colorPickerRow.style.display = (colorMode === 'single') ? '' : 'none';
+            multiColorPickersRow.style.display = (colorMode === 'multi') ? '' : 'none';
+            if(colorMode === 'multi') updateMultiColorPickers();
+            updatePreview();
+        });
+    });
+    // 動態產生多色選擇器
+    function updateMultiColorPickers() {
+        const chars = (textInput.value || '預覽').split('');
+        multiColors.length = chars.length;
+        for(let i=0;i<chars.length;i++) {
+            if(!multiColors[i]) multiColors[i] = '#'+((Math.random()*0xffffff)|0).toString(16).padStart(6,'0');
+        }
+        multiColorPickersRow.innerHTML = '';
+        chars.forEach((ch, i) => {
+            const label = document.createElement('label');
+            label.textContent = `第${i+1}字顏色：`;
+            label.style.fontSize = '1.1rem';
+            const picker = document.createElement('input');
+            picker.type = 'color';
+            picker.value = multiColors[i];
+            picker.className = 'color-picker';
+            picker.addEventListener('input', e => {
+                multiColors[i] = e.target.value;
+                updatePreview();
+            });
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.gap = '8px';
+            row.appendChild(label);
+            row.appendChild(picker);
+            multiColorPickersRow.appendChild(row);
+        });
+    }
+    // 文字變動時同步多色選擇器
+    textInput.addEventListener('input', () => {
+        if(colorMode === 'multi') updateMultiColorPickers();
+        updatePreview();
+    });
+
+    // 單色顏色選擇
+    colorPicker.addEventListener('input', updatePreview);
+
+    // 字型上傳
+    fontUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            // 產生唯一字型名稱
+            customFontName = 'CustomFont_' + Date.now();
+            const font = new FontFace(customFontName, ev.target.result);
+            font.load().then(function(loadedFont) {
+                document.fonts.add(loadedFont);
+                customFontLoaded = true;
+                updatePreview();
+            }).catch(() => {
+                alert('字型載入失敗');
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    });
+    
+    // 背景圖片上傳事件
+    bgUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                backgroundImage = new Image();
+                backgroundImage.onload = function() {
+                    backgroundImageLoaded = true;
+                    updatePreview();
+                    textControls.style.display = 'block'; // 顯示文字控制面板
+                };
+                backgroundImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // 移除背景圖片
+    removeBgBtn.addEventListener('click', function() {
+        backgroundImage = null;
+        backgroundImageLoaded = false;
+        updatePreview();
+        textControls.style.display = 'none'; // 隱藏文字控制面板
+    });
+
+    // 多層外框設定
+    function renderStrokeLayers() {
+        strokeLayersList.innerHTML = '';
+        strokeLayers.forEach((layer, idx) => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.gap = '8px';
+            row.style.marginBottom = '4px';
+            row.innerHTML = `
+                <span>第${idx+1}層</span>
+                <input type="color" value="${layer.color}" style="width:32px; height:32px;">
+                <input type="number" min="1" max="20" value="${layer.width}" style="width:50px;">
+                <button type="button" style="font-size:1.1rem; padding:2px 8px;" data-idx="${idx}" class="remove-stroke-layer">刪除</button>
+            `;
+            // 綁定事件
+            row.querySelector('input[type="color"]').addEventListener('input', e => {
+                strokeLayers[idx].color = e.target.value;
+                updatePreview();
+            });
+            row.querySelector('input[type="number"]').addEventListener('input', e => {
+                strokeLayers[idx].width = parseFloat(e.target.value) || 1;
+                updatePreview();
+            });
+            row.querySelector('.remove-stroke-layer').addEventListener('click', e => {
+                if(strokeLayers.length > 1) {
+                    strokeLayers.splice(idx, 1);
+                    renderStrokeLayers();
+                    updatePreview();
+                }
+            });
+            strokeLayersList.appendChild(row);
+        });
+    }
+    addStrokeLayerBtn.addEventListener('click', () => {
+        strokeLayers.push({ color: '#000000', width: 2 });
+        renderStrokeLayers();
+        updatePreview();
+    });
+    renderStrokeLayers();
+
+    // 下載 PNG
+    document.getElementById('download-png').addEventListener('click', function() {
+        // 先裁切透明區域
+        const w = previewCanvas.width, h = previewCanvas.height;
+        const imageData = ctx.getImageData(0, 0, w, h);
+        let minX = w, minY = h, maxX = 0, maxY = 0;
+        for(let y=0; y<h; y++) {
+            for(let x=0; x<w; x++) {
+                const idx = (y*w + x)*4;
+                if(imageData.data[idx+3] > 0) { // alpha > 0
+                    if(x < minX) minX = x;
+                    if(x > maxX) maxX = x;
+                    if(y < minY) minY = y;
+                    if(y > maxY) maxY = y;
+                }
+            }
+        }
+        // 若整張都是透明，則不裁切
+        if(minX > maxX || minY > maxY) {
+            minX = 0; minY = 0; maxX = w-1; maxY = h-1;
+        }
+        const cutW = maxX - minX + 1;
+        const cutH = maxY - minY + 1;
+        const cutCanvas = document.createElement('canvas');
+        cutCanvas.width = cutW;
+        cutCanvas.height = cutH;
+        const cutCtx = cutCanvas.getContext('2d');
+        cutCtx.drawImage(previewCanvas, minX, minY, cutW, cutH, 0, 0, cutW, cutH);
+        const link = document.createElement('a');
+        link.download = 'text.png';
+        link.href = cutCanvas.toDataURL('image/png');
+        link.click();
+    });
+
+    const width = 500, height =500;
+    function createTransparentImage(width, height) {
+        const c = document.createElement('canvas');
+        c.width = width;
+        c.height = height;
+        return c.toDataURL('image/png');
+    }
+    const transparentBgDataUrl = createTransparentImage(width, height);
+    const transparentBgImg = new window.Image();
+    transparentBgImg.src = transparentBgDataUrl;
+
+    document.getElementById('download-gif').addEventListener('click', function() {
+        if(animFrame) cancelAnimationFrame(animFrame);
+        const frames = 32; // 幀數提升
+        const duration = 1; // 1秒動畫
+        let gifFrames = [];
+        let minX = previewCanvas.width, minY = previewCanvas.height, maxX = 0, maxY = 0;
+        // 先產生所有幀並找最大內容區域
+        for(let i=0;i<frames*duration;i++){
+            let progress = i / (frames*duration);
+            animTick = i;
+            ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            drawPreview(progress);
+            // 取得每幀像素資料
+            const w = previewCanvas.width, h = previewCanvas.height;
+            const imageData = ctx.getImageData(0, 0, w, h);
+            let fminX = w, fminY = h, fmaxX = 0, fmaxY = 0;
+            for(let y=0; y<h; y++) {
+                for(let x=0; x<w; x++) {
+                    const idx = (y*w + x)*4;
+                    if(imageData.data[idx+3] > 0) {
+                        if(x < fminX) fminX = x;
+                        if(x > fmaxX) fmaxX = x;
+                        if(y < fminY) fminY = y;
+                        if(y > fmaxY) fmaxY = y;
+                    }
+                }
+            }
+            if(fminX > fmaxX || fminY > fmaxY) {
+                fminX = 0; fminY = 0; fmaxX = w-1; fmaxY = h-1;
+            }
+            // 更新全局最大內容區域
+            if(fminX < minX) minX = fminX;
+            if(fminY < minY) minY = fminY;
+            if(fmaxX > maxX) maxX = fmaxX;
+            if(fmaxY > maxY) maxY = fmaxY;
+            gifFrames.push({minX: fminX, minY: fminY, maxX: fmaxX, maxY: fmaxY});
+        }
+        const cutW = maxX - minX + 1;
+        const cutH = maxY - minY + 1;
+        // 檢查是否在本地文件系統中運行
+        const isLocalFile = window.location.protocol === 'file:';
+        const gifOptions = {
+            workers: isLocalFile ? 0 : 2, // 本地文件時不使用Worker
+            quality: 10,
+            width: cutW,
+            height: cutH,
+            transparent: 0x00000000
+        };
+        
+        // 如果不是本地文件，添加worker腳本
+        if (!isLocalFile) {
+            gifOptions.workerScript = './gif.worker.js';
+        }
+        
+        let gif = new GIF(gifOptions);
+        setTimeout(() => {
+            // 多色模式下，強制根據多色選擇器 input 重新抓取顏色
+            if (colorMode === 'multi') {
+                const pickers = multiColorPickersRow.querySelectorAll('input[type="color"]');
+                multiColors = [];
+                pickers.forEach((picker, i) => {
+                    multiColors[i] = picker.value || '#222222';
+                });
+            }
+            for(let i=0;i<frames*duration;i++){
+                let progress = i / (frames*duration);
+                animTick = i;
+                ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+                drawPreview(progress);
+                // 將每幀內容裁切到最大內容區域
+                const cutCanvas = document.createElement('canvas');
+                cutCanvas.width = cutW;
+                cutCanvas.height = cutH;
+                const cutCtx = cutCanvas.getContext('2d');
+                cutCtx.drawImage(previewCanvas, minX, minY, cutW, cutH, 0, 0, cutW, cutH);
+                gif.addFrame(cutCanvas, {copy: true, delay: 1000/frames});
+            }
+            gif.on('finished', function(blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = 'text.gif';
+                link.href = url;
+                link.click();
+                updatePreview();
+            });
+            gif.render();
+        }, 100);
+    });
+
+    // 文字變換控制事件
+    posXSlider.addEventListener('input', function() {
+        textTransform.x = parseInt(this.value);
+        updatePreview();
+    });
+    
+    posYSlider.addEventListener('input', function() {
+        textTransform.y = parseInt(this.value);
+        updatePreview();
+    });
+    
+    scaleSlider.addEventListener('input', function() {
+        textTransform.scale = parseFloat(this.value);
+        updatePreview();
+    });
+    
+    rotationSlider.addEventListener('input', function() {
+        textTransform.rotation = parseInt(this.value);
+        updatePreview();
+    });
+    
+    // 重置變換按鈕
+    resetTransformBtn.addEventListener('click', function() {
+        textTransform.x = 250;
+        textTransform.y = 200;
+        textTransform.scale = 1;
+        textTransform.rotation = 0;
+        
+        // 重置滑桿值
+        posXSlider.value = 250;
+        posYSlider.value = 200;
+        scaleSlider.value = 1;
+        rotationSlider.value = 0;
+        
+        updatePreview();
+    });
+    
+    // 檢查是否在本地文件系統中運行並顯示警告
+    if (window.location.protocol === 'file:') {
+        document.getElementById('local-file-warning').style.display = 'block';
+    }
+    
+    // 預設載入
+    updatePreview();
+    </script>
+</body>
+</html>
